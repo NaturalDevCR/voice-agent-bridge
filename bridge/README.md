@@ -34,14 +34,14 @@ Forma recomendada: ver [../voice_agent_bridge/DOCS.md](../voice_agent_bridge/DOC
 En la shell del nodo Proxmox:
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/NaturalDevCR/m5-stack-assist/main/install/proxmox-lxc.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/NaturalDevCR/voice-agent-bridge/main/install/proxmox-lxc.sh)"
 ```
 
 Crea un LXC Debian 13 sin privilegios (Debian 12 en Proxmox VE 8) (1 núcleo, 512 MB, 4 GB, DHCP en `vmbr0`), instala el
 servicio, genera el token del terminal y activa el autologin en la consola de Proxmox (como los community-scripts; `AUTOLOGIN=0` lo desactiva). Para personalizar, antepone variables, por ejemplo:
 
 ```bash
-CTID=237 IP=192.168.20.37/24,gw=192.168.20.1 VLAN=20 STORAGE=local-zfs bash -c "$(curl -fsSL https://raw.githubusercontent.com/NaturalDevCR/m5-stack-assist/main/install/proxmox-lxc.sh)"
+CTID=237 IP=192.168.20.37/24,gw=192.168.20.1 VLAN=20 STORAGE=local-zfs bash -c "$(curl -fsSL https://raw.githubusercontent.com/NaturalDevCR/voice-agent-bridge/main/install/proxmox-lxc.sh)"
 ```
 
 Después, dentro del contenedor (`pct enter <CTID>`):

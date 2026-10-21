@@ -139,3 +139,31 @@ def test_names_derive_generic_ids():
         "voice_agent_recepcion_norte")
     ids = {p["default_entity_id"] for _, p in discovery_messages(m)}
     assert "sensor.recepcion_norte_estado" in ids
+
+
+def test_renaming_device_removes_stale_entities(tmp_path):
+    class FakeClient:
+        def __init__(self):
+            self.published = []
+
+        async def publish(self, topic, payload, qos=0, retain=False):
+            self.published.append((topic, payload, retain))
+
+    async def go():
+        store = StateStore(tmp_path / "s.json")
+        mgr = SessionManager(Config(), FakeTerminal(), store)
+        old_cfg = Config(name="Dick Hallorann").finalize().mqtt
+        ha_old = HomeAssistantMqtt(old_cfg, mgr)
+        await ha_old._remove_stale(FakeClient(), {t for t, _ in discovery_messages(old_cfg)})
+        assert any("dick_hallorann" in t for t in store.state.published_topics)
+
+        new_cfg = Config(name="Asistente de voz").finalize().mqtt
+        client = FakeClient()
+        await HomeAssistantMqtt(new_cfg, mgr)._remove_stale(
+            client, {t for t, _ in discovery_messages(new_cfg)})
+        removed = {t for t, payload, retain in client.published if payload == b"" and retain}
+        assert "homeassistant/sensor/voice_agent_dick_hallorann/estado/config" in removed
+        assert "voice_agent/dick_hallorann/state" in removed
+        assert not any("asistente_de_voz" in t for t in removed)
+        assert all("dick_hallorann" not in t for t in StateStore(tmp_path / "s.json").state.published_topics)
+    asyncio.run(go())

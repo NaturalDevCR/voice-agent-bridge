@@ -7,8 +7,10 @@ ElevenLabs; esta app gestiona el audio, las sesiones, los costos y Home Assistan
 
 ## Configuración
 
-1. **Nombre del agente**: p. ej. `Danny`. Define el dispositivo en Home Assistant y el
-   prefijo de las entidades (`Danny` → `sensor.danny_estado`).
+1. **Nombre del dispositivo**: neutro, p. ej. `Asistente de voz` (por defecto). Define el
+   dispositivo en Home Assistant y el prefijo de las entidades
+   (`sensor.asistente_de_voz_estado`). Mantenlo al cambiar de personaje.
+   **Personaje** (opcional): p. ej. `danny`, elige los saludos incluidos.
 2. **Clave API de ElevenLabs**: ElevenLabs → Desarrolladores → API Keys, con permiso
    *ElevenAgents: Escribir* (con *Leído* falla con `missing the permission convai_write`).
 3. **ID del agente** de ElevenLabs (`agent_…`).
@@ -24,22 +26,23 @@ los campos MQTT opcionales.
 - Audio de entrada y salida en **PCM 16000 Hz**.
 - Autenticación activada (la app pide una signed URL por sesión).
 - Si el primer mensaje usa la variable `{{saludo}}`, la app la rellena con un saludo al
-  azar del banco de saludos (campo *Saludos* o los incluidos para ese nombre).
+  azar del banco de saludos (campo *Saludos* o los incluidos del personaje).
 - Herramienta de sistema *End call* habilitada, para que el agente cuelgue al despedirse.
 
-## Entidades (ejemplo con nombre "Danny")
+## Entidades (con el nombre por defecto "Asistente de voz")
 
-En *Ajustes → Dispositivos → MQTT → Danny*:
+En *Ajustes → Dispositivos → MQTT → Asistente de voz*:
 
-- `sensor.danny_estado`: idle · connecting · listening · speaking · farewell · cooldown · error
-- `binary_sensor.danny_hablando`, `binary_sensor.danny_escuchando`, `binary_sensor.danny_terminal`
-- `button.danny_iniciar_conversacion` (manual) y `button.danny_visitante_detectado`
+- `sensor.asistente_de_voz_estado`: idle · connecting · listening · speaking · farewell · cooldown · error
+- `binary_sensor.asistente_de_voz_hablando`, `binary_sensor.asistente_de_voz_escuchando`, `binary_sensor.asistente_de_voz_terminal`
+- `button.asistente_de_voz_iniciar_conversacion` (manual) y `button.asistente_de_voz_visitante_detectado`
   (para sensores de presencia: respeta la pausa entre grupos)
-- `button.danny_terminar_conversacion`
-- `switch.danny_activo`: interruptor maestro
-- tiempos ajustables, minutos y costo estimado del día, `event.danny_sesion`
+- `button.asistente_de_voz_terminar_conversacion`
+- `switch.asistente_de_voz_activo`: interruptor maestro
+- tiempos ajustables, minutos y costo estimado del día, `event.asistente_de_voz_sesion`
 
 Si cambias los tiempos en el formulario de la app, mandan sobre los ajustados desde HA.
+Si cambias el nombre del dispositivo, la app borra las entidades del nombre anterior.
 
 ## Terminal
 

@@ -27,6 +27,9 @@ class PersistentState:
     enabled: bool = True
     overrides: dict[str, float] = field(default_factory=dict)  # max_session_s, idle_timeout_s, cooldown_s
     form_settings: dict[str, float] = field(default_factory=dict)  # modo app: últimos valores del formulario
+    # Topics MQTT retenidos publicados la última vez (para borrar entidades viejas si
+    # cambia el nombre del dispositivo).
+    published_topics: list[str] = field(default_factory=list)
     today: DayStats = field(default_factory=DayStats)
 
 
@@ -50,6 +53,7 @@ class StateStore:
             enabled=bool(data.get("enabled", True)),
             overrides={k: float(v) for k, v in (data.get("overrides") or {}).items()},
             form_settings={k: float(v) for k, v in (data.get("form_settings") or {}).items()},
+            published_topics=[str(t) for t in data.get("published_topics") or []],
             today=DayStats(**(data.get("today") or {})),
         )
 

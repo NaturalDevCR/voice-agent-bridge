@@ -5,7 +5,7 @@ FROM ghcr.io/home-assistant/base-python:3.13-alpine3.24-2026.10.0
 
 ARG BUILD_VERSION
 ARG BUILD_ARCH
-ARG REPO=https://github.com/NaturalDevCR/m5-stack-assist
+ARG REPO=https://github.com/NaturalDevCR/voice-agent-bridge
 
 LABEL \
     io.hass.version="${BUILD_VERSION}" \

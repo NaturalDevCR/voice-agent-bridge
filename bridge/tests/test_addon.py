@@ -5,7 +5,8 @@ from voice_agent_bridge.config import validate
 from voice_agent_bridge.state import StateStore
 
 OPTIONS = {
-    "name": "Danny",
+    "name": "Asistente de voz",
+    "persona": "danny",
     "elevenlabs_api_key": "clave",
     "agent_id": "agent_x",
     "terminal_token": "",
@@ -28,7 +29,23 @@ def test_build_config_from_options_and_mqtt_service(tmp_path: Path):
     assert cfg.terminal.type == "websocket" and cfg.terminal.websocket.port == 8765
     assert cfg.mqtt.enabled and cfg.mqtt.host == "core-mosquitto" and cfg.mqtt.password == "pw"
     assert cfg.state_file == str(tmp_path / "state.json")
-    assert cfg.mqtt.entity_prefix == "danny" and cfg.mqtt.base_topic == "voice_agent/danny"
+    assert cfg.mqtt.entity_prefix == "asistente_de_voz"
+    assert cfg.mqtt.base_topic == "voice_agent/asistente_de_voz"
+
+
+def test_persona_selects_bundled_greetings_without_changing_entities(tmp_path: Path, monkeypatch):
+    import voice_agent_bridge.addon as addon
+    personas = tmp_path / "personas"
+    (personas / "danny").mkdir(parents=True)
+    (personas / "danny" / "saludos.txt").write_text("Bienvenidos al Overlook.\n", encoding="utf-8")
+    monkeypatch.setattr(addon, "PERSONAS_DIR", personas)
+    data = tmp_path / "data"
+    data.mkdir()
+    danny = build_config(OPTIONS, {}, data)
+    other = build_config({**OPTIONS, "persona": "recepcion"}, {}, data)
+    assert danny.elevenlabs.greetings_file.endswith("danny/saludos.txt")
+    assert other.elevenlabs.greetings_file == ""          # sin saludos incluidos → genérico
+    assert danny.mqtt.entity_prefix == other.mqtt.entity_prefix == "asistente_de_voz"
 
 
 def test_terminal_token_is_generated_once_and_persisted(tmp_path: Path):

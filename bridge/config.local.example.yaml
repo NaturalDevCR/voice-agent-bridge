@@ -2,7 +2,8 @@
 #   cp config.local.example.yaml config.local.yaml
 #   uv sync --extra local
 #   uv run voice-agent-bridge run --config config.local.yaml --env ../tools/el_spike/.env --enter
-name: Danny
+name: Asistente de voz
+persona: danny
 state_file: ./out/state.json
 log_level: INFO
 

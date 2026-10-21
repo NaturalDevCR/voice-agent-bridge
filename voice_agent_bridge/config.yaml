@@ -1,8 +1,8 @@
 name: Voice Agent Bridge
-version: "0.3.0"
+version: "0.4.0"
 slug: voice_agent_bridge
 description: Terminal de voz (AtomS3R u otro) conectado a un agente de ElevenLabs y a Home Assistant
-url: https://github.com/NaturalDevCR/m5-stack-assist
+url: https://github.com/NaturalDevCR/voice-agent-bridge
 arch:
   - amd64
   - aarch64
@@ -14,7 +14,8 @@ services:
 ports:
   8765/tcp: 8765
 options:
-  name: Danny
+  name: Asistente de voz
+  persona: danny
   elevenlabs_api_key: null
   agent_id: agent_9401m4hv6mgaecp9jbtbcwwan1qw
   terminal_token: ""
@@ -26,6 +27,7 @@ options:
   log_level: info
 schema:
   name: str
+  persona: str?
   elevenlabs_api_key: password
   agent_id: str
   terminal_token: password?

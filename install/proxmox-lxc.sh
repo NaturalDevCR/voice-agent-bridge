@@ -2,7 +2,7 @@
 # Crea un LXC Debian en Proxmox VE e instala Voice Agent Bridge dentro.
 # Ejecutar en la shell del NODO Proxmox (como root):
 #
-#   bash -c "$(curl -fsSL https://raw.githubusercontent.com/NaturalDevCR/m5-stack-assist/main/install/proxmox-lxc.sh)"
+#   bash -c "$(curl -fsSL https://raw.githubusercontent.com/NaturalDevCR/voice-agent-bridge/main/install/proxmox-lxc.sh)"
 #
 # Variables opcionales (anteponer al comando, p. ej. CTID=237 IP=192.168.20.37/24,gw=192.168.20.1):
 #   CTID  HOSTNAME_CT  CORES  RAM  SWAP  DISK  STORAGE  TEMPLATE_STORAGE  BRIDGE  IP  VLAN
@@ -11,9 +11,9 @@
 #   REPO_URL  BRANCH  YES=1 (sin confirmación)
 set -euo pipefail
 
-REPO_URL="${REPO_URL:-https://github.com/NaturalDevCR/m5-stack-assist.git}"
+REPO_URL="${REPO_URL:-https://github.com/NaturalDevCR/voice-agent-bridge.git}"
 BRANCH="${BRANCH:-main}"
-RAW_BASE="${RAW_BASE:-https://raw.githubusercontent.com/NaturalDevCR/m5-stack-assist/$BRANCH}"
+RAW_BASE="${RAW_BASE:-https://raw.githubusercontent.com/NaturalDevCR/voice-agent-bridge/$BRANCH}"
 HOSTNAME_CT="${HOSTNAME_CT:-voice-agent-bridge}"
 CORES="${CORES:-1}"
 RAM="${RAM:-512}"

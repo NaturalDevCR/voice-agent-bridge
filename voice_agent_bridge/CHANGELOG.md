@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0
+
+- **Nombre del dispositivo** neutro por defecto ("Asistente de voz" →
+  `sensor.asistente_de_voz_estado`), separado del **Personaje** (`persona`, p. ej. `danny`),
+  que sólo elige los saludos incluidos. Cambiar de personaje ya no cambia los entity_id.
+- Si cambias el nombre del dispositivo, la app borra de Home Assistant las entidades del
+  nombre anterior (antes quedaban huérfanas).
+- Repositorio renombrado a `NaturalDevCR/voice-agent-bridge` (la URL anterior redirige).
+
 ## 0.3.0
 
 - Renombrada a **Voice Agent Bridge**: sirve para cualquier agente, no sólo Danny.

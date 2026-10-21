@@ -18,7 +18,7 @@ from .state import StateStore
 
 LOG = logging.getLogger(__name__)
 DATA = Path(os.environ.get("BRIDGE_DATA_DIR", "/data"))
-# Saludos incluidos en la imagen: personas/<prefijo del nombre>/saludos.txt (p. ej. danny).
+# Saludos incluidos en la imagen: personas/<persona>/saludos.txt (p. ej. danny).
 PERSONAS_DIR = Path(os.environ.get("BRIDGE_PERSONAS_DIR", "/opt/voice-agent-bridge/personas"))
 SESSION_KEYS = ("max_session_s", "idle_timeout_s", "cooldown_s")
 
@@ -40,7 +40,8 @@ def terminal_token(options: dict, data_dir: Path) -> str:
 
 def build_config(options: dict, env: dict[str, str], data_dir: Path = DATA) -> Config:
     cfg = Config()
-    cfg.name = (options.get("name") or "Asistente").strip()
+    cfg.name = (options.get("name") or "Asistente de voz").strip()
+    cfg.persona = (options.get("persona") or "").strip()
     cfg.state_file = str(data_dir / "state.json")
     cfg.log_level = str(options.get("log_level", "info")).upper()
 
@@ -53,8 +54,8 @@ def build_config(options: dict, env: dict[str, str], data_dir: Path = DATA) -> C
         path.write_text("\n".join(greetings) + "\n", encoding="utf-8")
         el.greetings_file = str(path)
     else:
-        bundled = PERSONAS_DIR / slugify(cfg.name) / "saludos.txt"
-        el.greetings_file = str(bundled) if bundled.is_file() else ""
+        bundled = PERSONAS_DIR / slugify(cfg.persona) / "saludos.txt" if cfg.persona else None
+        el.greetings_file = str(bundled) if bundled and bundled.is_file() else ""
 
     s = cfg.session
     for key in SESSION_KEYS:

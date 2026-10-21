@@ -4,7 +4,7 @@
 # Variables: REPO_URL, BRANCH
 set -euo pipefail
 
-REPO_URL="${REPO_URL:-https://github.com/NaturalDevCR/m5-stack-assist.git}"
+REPO_URL="${REPO_URL:-https://github.com/NaturalDevCR/voice-agent-bridge.git}"
 BRANCH="${BRANCH:-main}"
 APP_DIR=/opt/voice-agent-bridge
 CONF_DIR=/etc/voice-agent-bridge

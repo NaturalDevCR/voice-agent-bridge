@@ -1,7 +1,15 @@
-# Danny — asistente de voz interactivo (Room 237 Halloween Party)
+# Voice Agent Bridge
 
-Personaje conversacional con ElevenLabs Agents en un M5Stack AtomS3R + Atomic Audio-3.5 Base,
-integrado con Home Assistant. Arquitectura reutilizable: terminal de audio ⇄ puente ⇄ agente.
+Terminal de voz conversacional: un dispositivo pequeño (M5Stack AtomS3R + Atomic Audio-3.5
+Base) que conversa con un **agente de ElevenLabs** y se integra con **Home Assistant**.
+Arquitectura reutilizable: terminal de audio ⇄ puente (app de HA) ⇄ agente.
+
+Sirve para cualquier asistente o personaje (recepción, guía, kiosco, personajes temáticos):
+la personalidad, la voz y el conocimiento viven en el agente de ElevenLabs; el terminal y
+el puente no cambian.
+
+**Primer caso de uso:** *Danny*, conserje del Hotel Overlook para la Room 237 Halloween Party
+(personalidad y base de conocimiento en [personas/danny](personas/danny/)).
 
 ## Estado
 
@@ -18,23 +26,23 @@ integrado con Home Assistant. Arquitectura reutilizable: terminal de audio ⇄ p
 1. En Home Assistant: **Ajustes → Aplicaciones (antes "Complementos") → Tienda → ⋮ → Repositorios** y agrega:
 
    ```
-   https://github.com/NaturalDevCR/m5-stack-assist
+   https://github.com/NaturalDevCR/voice-agent-bridge
    ```
 
-2. Instala **Voice Agent Bridge**. En la pestaña **Configuración**: nombre del agente `Danny`,
-   clave API de ElevenLabs (permiso *ElevenAgents: Escribir*) e inicia la app.
-3. MQTT se configura solo con la app Mosquitto; Danny aparece como dispositivo en
-   *Dispositivos → MQTT*. El token para el AtomS3R aparece en la pestaña **Registro**.
+2. Instala **Voice Agent Bridge**. En la pestaña **Configuración**: clave API de ElevenLabs
+   (permiso *ElevenAgents: Escribir*), ID del agente y personaje (`danny`); inicia la app.
+3. MQTT se configura solo con la app Mosquitto; el dispositivo **Asistente de voz** aparece en
+   *Dispositivos → MQTT*. El token para el terminal aparece en la pestaña **Registro**.
 
-Detalle: [voice_agent_bridge/DOCS.md](voice_agent_bridge/DOCS.md). La app es genérica: sirve para
-cualquier agente de ElevenLabs (recepción, guía, otro personaje) cambiando nombre, agente y saludos.
+Detalle: [voice_agent_bridge/DOCS.md](voice_agent_bridge/DOCS.md). Para otro uso basta con cambiar
+el ID del agente, el personaje y los saludos; el nombre del dispositivo (y los entity_id) se mantiene.
 
 ### Alternativa: LXC en Proxmox
 
 Para correr el puente fuera de Home Assistant, en la shell del nodo Proxmox:
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/NaturalDevCR/m5-stack-assist/main/install/proxmox-lxc.sh)"
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/NaturalDevCR/voice-agent-bridge/main/install/proxmox-lxc.sh)"
 ```
 
 Opciones y configuración en [bridge/README.md](bridge/README.md#instalación-en-proxmox-lxc).

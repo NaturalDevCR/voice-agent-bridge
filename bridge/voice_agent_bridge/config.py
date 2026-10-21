@@ -90,8 +90,11 @@ def slugify(text: str) -> str:
 
 @dataclass
 class Config:
-    # Nombre del agente/personaje: dispositivo en HA, prefijo de entidades y registros.
-    name: str = "Asistente"
+    # Nombre del dispositivo (neutro): dispositivo en HA, prefijo de entidades y registros.
+    # No es el personaje: así cambiar de personaje no cambia los entity_id.
+    name: str = "Asistente de voz"
+    # Personaje (opcional): elige los saludos incluidos en personas/<persona>/saludos.txt.
+    persona: str = ""
     timezone: str = "America/Costa_Rica"
     state_file: str = "/var/lib/voice-agent-bridge/state.json"
     log_level: str = "INFO"

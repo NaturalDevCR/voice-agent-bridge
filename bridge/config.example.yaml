@@ -1,8 +1,10 @@
 # Configuración de Voice Agent Bridge. Copiar a /etc/voice-agent-bridge/config.yaml.
 # Los SECRETOS van en /etc/voice-agent-bridge/voice-agent-bridge.env (ver voice-agent-bridge.env.example).
 
-# Nombre del agente: dispositivo en Home Assistant y prefijo de entidades (danny → sensor.danny_estado)
-name: Danny
+# Nombre neutro del dispositivo en HA y prefijo de entidades (→ sensor.asistente_de_voz_estado)
+name: Asistente de voz
+# Personaje (informativo; los saludos se toman de elevenlabs.greetings_file)
+persona: danny
 timezone: America/Costa_Rica
 state_file: /var/lib/voice-agent-bridge/state.json
 log_level: INFO

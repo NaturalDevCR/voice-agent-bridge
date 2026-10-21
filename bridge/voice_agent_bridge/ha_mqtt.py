@@ -133,7 +133,9 @@ class HomeAssistantMqtt:
                     self._client = client
                     backoff = 1
                     LOG.info("MQTT conectado a %s:%s", self.cfg.host, self.cfg.port)
-                    for topic, payload in discovery_messages(self.cfg):
+                    messages = discovery_messages(self.cfg)
+                    await self._remove_stale(client, {t for t, _ in messages})
+                    for topic, payload in messages:
                         await client.publish(topic, json.dumps(payload), qos=1, retain=True)
                     await client.publish(f"{b}/availability", "online", qos=1, retain=True)
                     await client.subscribe(f"{b}/cmd/#", qos=1)
@@ -149,6 +151,26 @@ class HomeAssistantMqtt:
                 LOG.warning("MQTT desconectado (%s); reintento en %ss", exc, backoff)
                 await asyncio.sleep(backoff)
                 backoff = min(backoff * 2, 60)
+
+    def retained_topics(self, discovery_topics: set[str]) -> list[str]:
+        b = self.cfg.base_topic
+        return sorted(discovery_topics | {f"{b}/state", f"{b}/availability"})
+
+    async def _remove_stale(self, client: aiomqtt.Client, discovery_topics: set[str]) -> None:
+        """Borra de HA las entidades de un nombre de dispositivo anterior.
+
+        Un payload vacío retenido en el topic de discovery elimina la entidad en HA.
+        """
+        store = self.manager.store
+        current = self.retained_topics(discovery_topics)
+        stale = [t for t in store.state.published_topics if t not in current]
+        for topic in stale:
+            await client.publish(topic, b"", qos=1, retain=True)
+        if stale:
+            LOG.info("eliminadas %d entidades/topics de un nombre de dispositivo anterior", len(stale))
+        if store.state.published_topics != current:
+            store.state.published_topics = current
+            store.save()
 
     async def _publisher(self, client: aiomqtt.Client) -> None:
         b = self.cfg.base_topic
