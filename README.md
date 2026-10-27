@@ -18,7 +18,7 @@ el puente no cambian.
 | Investigación y arquitectura | Decidida → [docs/01](docs/01-investigacion-y-decision-arquitectura.md) |
 | Agente ElevenLabs (prompt, voz, base de conocimiento) | Publicado v1.7 → [docs/02](docs/02-configuracion-agente-elevenlabs.md) |
 | H2/H4/H5: puente (sesiones, ElevenLabs, Home Assistant) | Listo como app de HA → [voice_agent_bridge](voice_agent_bridge/DOCS.md) · código en [bridge](bridge/README.md) |
-| H1 hardware (AtomS3R) | Pendiente de recibir el hardware |
+| H1 hardware (AtomS3R) | I2C, audio y micrófono validados → [docs/03](docs/03-hito1-resultados-hardware.md) · [firmware/hw_test](firmware/hw_test/README.md) |
 | H6–H7 | Pendiente |
 
 ## Instalar el puente como app de Home Assistant (recomendado)
@@ -53,13 +53,14 @@ Opciones y configuración en [bridge/README.md](bridge/README.md#instalación-en
 docs/                       decisiones y guías
   01-investigacion-y-decision-arquitectura.md
   02-configuracion-agente-elevenlabs.md
+  03-hito1-resultados-hardware.md
 personas/danny/             personalidad (independiente del hardware)
   prompt.md                 system prompt (sólo comportamiento)
   kb/                       base de conocimiento del agente (datos)
   saludos.txt               banco de saludos → variable {{saludo}}
   despedidas.txt            despedidas de respaldo
 tools/el_spike/             prueba de conversación real sin hardware + pruebas offline
-firmware/                   (H1) firmware ESP-IDF del terminal
+firmware/hw_test/           (H1) prueba de hardware ESP-IDF 6.1
 bridge/                     puente Python: sesiones, ElevenLabs, MQTT/HA, terminales
 voice_agent_bridge/         app de Home Assistant "Voice Agent Bridge" (empaqueta bridge/)
 repository.yaml             repositorio de apps de Home Assistant

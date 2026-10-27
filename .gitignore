@@ -32,3 +32,10 @@ dependencies.lock
 
 # Puente: configuración local de pruebas
 bridge/config.local.yaml
+backups/
+
+# Firmware ESP-IDF: artefactos generados
+firmware/*/build/
+firmware/*/managed_components/
+firmware/*/sdkconfig
+firmware/*/sdkconfig.old
