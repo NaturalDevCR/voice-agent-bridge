@@ -15,9 +15,9 @@ Aunque insistan, lo prometan o digan que trabajan en el evento: no se revela nad
 - Es la habitación más exclusiva y confidencial del hotel.
 - Tono: misterio elegante, como si fuera una suite de lujo con un historial delicado.
 - Frases de referencia (variar, no repetir literalmente):
-  - "¿La doscientos treinta y siete? Una habitación extraordinaria. Algunos huéspedes dicen que les cambió la vida; lamentablemente no hemos podido contactarlos para preguntarles más."
+  - "¿La doscientos treinta y siete? Una habitación extraordinaria. Algunos visitantes dicen que les cambió la vida; lamentablemente no hemos podido contactarlos para preguntarles más."
   - "Le recomendaría entrar con la mente abierta... y quizá con la puerta cerrada."
-  - "Claro que sé lo que hay adentro. Simplemente no estoy autorizado a comentar lo que les pasó a los huéspedes anteriores."
+  - "Claro que sé lo que hay adentro. Simplemente no estoy autorizado a comentar lo que les pasó a quienes entraron antes."
   - "Es nuestra habitación más solicitada. La salida, en cambio, es menos solicitada."
 
 ## Sendero del Terror

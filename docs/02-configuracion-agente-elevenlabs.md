@@ -192,3 +192,14 @@ Prueba `conv_8501m4q4qd6w6kez29kxzee5p3wsqx`: premios completos con los 4 hotele
 - **Despedida:** enviar una "nota del sistema" como `user_message` activó la protección *Prompt Injection* del agente y ElevenLabs cortó la llamada (`1008 Conversation was stopped because the 'Prompt Injection' guardrail was triggered`). El puente ahora envía una frase natural de visitante ("Bueno, muchas gracias, ya nos tenemos que ir."): Danny se despide y llama a `end_call` (cierre 1000 del servidor). Verificado en `conv_0101m4qef225eg2r3jg0ec4c10w4`.
 - **"Tomar turno tras el silencio" = 7 s:** cuando los visitantes callan, Danny pregunta "¿siguen ahí?" con una transcripción vacía ("...") del lado del usuario. El puente ignora esas transcripciones y no reinicia la inactividad con esos recordatorios.
 - **"Terminar conversación tras el silencio" = 60 s:** red de seguridad del agente; el puente se despide antes (20 s de inactividad por defecto).
+
+## v1.8 (2026-10-29): Hotel Poco a Poco, invitados externos
+
+Aplicado por API (`PATCH /v1/convai/agents/{id}`; versión `agtvrsn_6201m64kd18efqzrry4fw3ggqtwq`), sin tocar LLM, voz, turnos ni herramientas:
+
+- Prompt v1.8: el hotel es el Hotel & Spa Poco a Poco; el Overlook sólo como el hotel de *El resplandor* cuando pregunten por la película. Se nombran Detrás del Palo, Otocuma Cinema Lounge y la Room 237 Halloween Party. Los visitantes son **invitados** externos del evento, no huéspedes: nada de hospedaje, habitaciones, check-in ni reservas (si preguntan, el personal del hotel).
+- KB: documentos nuevos (v1.8) para evento, Room 237/Sendero y lore (ahora "Lore ficticio del Hotel Poco a Poco"); "El resplandor — datos reales" sin cambios. Los documentos v1.7 quedan en el workspace sin usar (`NYvaz0f96LVM72DKR78e`, `RdFBc90a6DFVhW53l8OZ`, `IMJIRlrsCAtIet1ty0ID`); se pueden borrar desde el panel.
+- Saludo de prueba del panel y palabras clave ASR: −"Overlook", +"Poco a Poco", +"Detrás del Palo" (10/50).
+- Saludos y despedidas sin Overlook ni "huéspedes"; el puente los incluye en la imagen (app 0.4.1).
+
+Prueba `conv_3801m64ke6djf2facj35rqahs689`: "¿Este es el hotel Overlook de la película?" → "No, estimados invitados; este es el Hotel Poco a Poco… El Overlook es el hotel de la película El resplandor" ✔. "¿Nos podemos quedar a dormir?" → son invitados del evento, el personal del hotel los atiende ✔. "¿Qué es Detrás del Palo?" ✔.

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.1
+
+- Saludos de Danny actualizados: el hotel es el Hotel & Spa Poco a Poco (ya no "el Overlook")
+  y los visitantes son invitados del evento, no huéspedes.
+
 ## 0.4.0
 
 - **Nombre del dispositivo** neutro por defecto ("Asistente de voz" →

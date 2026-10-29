@@ -8,7 +8,7 @@ Sirve para cualquier asistente o personaje (recepción, guía, kiosco, personaje
 la personalidad, la voz y el conocimiento viven en el agente de ElevenLabs; el terminal y
 el puente no cambian.
 
-**Primer caso de uso:** *Danny*, conserje del Hotel Overlook para la Room 237 Halloween Party
+**Primer caso de uso:** *Danny*, conserje del Hotel & Spa Poco a Poco para la Room 237 Halloween Party
 (personalidad y base de conocimiento en [personas/danny](personas/danny/)).
 
 ## Estado
