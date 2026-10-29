@@ -1,0 +1,51 @@
+CONFIG_IDF_TARGET="esp32s3"
+
+# AtomS3R: ESP32-S3-PICO-1, 8 MB flash, 8 MB PSRAM octal
+CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_MODE_OCT=y
+CONFIG_SPIRAM_SPEED_80M=y
+
+# Consola por el USB nativo (USB-Serial/JTAG)
+CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
+
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=8192
+CONFIG_FREERTOS_HZ=1000
+
+# Wi-Fi: sin ahorro de energía (latencia de audio)
+CONFIG_ESP_WIFI_STA_DISCONNECTED_PM_ENABLE=n
+
+# Reinicio si una tarea se cuelga
+CONFIG_ESP_TASK_WDT_PANIC=y
+
+# Particiones: dos slots de 3.5 MB para OTA (H7)
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+
+# Envío y recepción con candados separados: sin esto, recibir audio del puente
+# bloquea el envío del micrófono ("Could not lock ws-client")
+CONFIG_ESP_WS_CLIENT_SEPARATE_TX_LOCK=y
+
+# Red tolerante a pausas: los valores por defecto (TCP 5.7 KB) con ~170 ms de RTT
+# dan ~33 KB/s, justo lo que pide el audio. Valores del ejemplo iperf, en PSRAM.
+CONFIG_SPIRAM_TRY_ALLOCATE_WIFI_LWIP=y
+CONFIG_LWIP_TCP_SND_BUF_DEFAULT=32768
+CONFIG_LWIP_TCP_WND_DEFAULT=32768
+CONFIG_LWIP_TCP_RECVMBOX_SIZE=32
+CONFIG_LWIP_TCPIP_RECVMBOX_SIZE=64
+CONFIG_ESP_WIFI_STATIC_RX_BUFFER_NUM=16
+CONFIG_ESP_WIFI_DYNAMIC_RX_BUFFER_NUM=64
+CONFIG_ESP_WIFI_DYNAMIC_TX_BUFFER_NUM=64
+CONFIG_ESP_WIFI_TX_BA_WIN=32
+CONFIG_ESP_WIFI_RX_BA_WIN=32
+
+# 802.11k/v: roaming entre APs de la misma red
+CONFIG_ESP_WIFI_11KV_SUPPORT=y
+
+# Pantalla (LVGL): fuentes usadas y memoria de LVGL desde malloc (va a PSRAM si es grande)
+CONFIG_LV_FONT_MONTSERRAT_10=y
+CONFIG_LV_FONT_MONTSERRAT_14=y
+CONFIG_LV_FONT_MONTSERRAT_18=y
+CONFIG_LV_USE_CLIB_MALLOC=y
+CONFIG_LV_USE_CLIB_STRING=y
+CONFIG_LV_USE_CLIB_SPRINTF=y

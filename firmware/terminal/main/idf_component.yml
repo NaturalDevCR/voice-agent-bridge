@@ -1,0 +1,8 @@
+dependencies:
+  idf: ">=6.0"
+  espressif/esp_codec_dev: "~1.6"
+  espressif/esp_websocket_client: "^1.5"
+  # Pantalla GC9107 (variante del GC9A01) + LVGL; mismas versiones que xiaozhi para AtomS3R.
+  espressif/esp_lcd_gc9a01: "~2.0.4"
+  lvgl/lvgl: "~9.5.0"
+  espressif/esp_lvgl_port: "~2.9.0"
