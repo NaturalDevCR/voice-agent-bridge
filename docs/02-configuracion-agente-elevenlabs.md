@@ -203,3 +203,14 @@ Aplicado por API (`PATCH /v1/convai/agents/{id}`; versión `agtvrsn_6201m64kd18e
 - Saludos y despedidas sin Overlook ni "huéspedes"; el puente los incluye en la imagen (app 0.4.1).
 
 Prueba `conv_3801m64ke6djf2facj35rqahs689`: "¿Este es el hotel Overlook de la película?" → "No, estimados invitados; este es el Hotel Poco a Poco… El Overlook es el hotel de la película El resplandor" ✔. "¿Nos podemos quedar a dormir?" → son invitados del evento, el personal del hotel los atiende ✔. "¿Qué es Detrás del Palo?" ✔.
+
+## v1.9 (2026-10-30): cócteles de autor, jurado invitado, concurso nuevo
+
+Aplicado desde el panel (Chrome), sin tocar LLM, voz ni turnos:
+
+- Prompt v1.9: Danny puede recomendar de vez en cuando un cóctel de autor de Otocuma (sin presionar a beber); al pedir el menú nombra los cuatro y describe uno por respuesta. Concurso con dos caminos: premios del jurado por inscripción en el stand de los jueces (preselección y tres ganadores), Favorito del público por QR o búsqueda por nombre en la plataforma. Jueces = personas reales: respeto, sin lore ni bromas.
+- KB: documento nuevo "Cócteles de autor de Otocuma [v1.9]" (*Incluir siempre en el aviso*), desde `kb/05-cocteles-de-autor.md` (fichas técnicas; "Sangre de padre" sin perfil sensorial y "Hechizo del campo" sin garnish: Danny no los inventa). "Evento Room 237" editado con el concurso nuevo y el jurado (Joss Araya, Andy Valverde, Steph Molina). "Room 237 y Sendero": cóctel como alternativa si alguien tiene miedo.
+- Términos clave ASR (17/50): +"Joss Araya", +"Andy Valverde", +"Steph Molina", +"Bruma de Monte Verde", +"Sangre de padre", +"Hechizo del campo", +"Fantasma de cosecha" (máx. 20 caracteres).
+- El sitio (/reglas) aún dice que para la preselección del jurado "no hace falta hacer nada"; la KB sigue la instrucción del organizador (inscripción en el stand).
+
+Prueba en chat de vista previa: primer lugar → stand de jueces, preselección, tres ganadores ✔; Favorito del público → Mi expediente, QR o nombre ✔; jurado → presenta a Joss Araya ✔; cócteles → nombra los cuatro y recomienda El fantasma de la cosecha con su leyenda ✔. Pendiente: sigue usando "estimado invitado" en singular masculino a veces.

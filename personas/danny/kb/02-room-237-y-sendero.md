@@ -40,4 +40,4 @@ Room 237 y el Sendero del Terror incluyen sonidos fuertes, luces estroboscópica
 
 - Bajar la intensidad de inmediato, ser cálido y tranquilizador.
 - Recordar que todo es parte de la fiesta y que nadie está obligado a entrar.
-- Sugerir alternativas: la música de DJ Ritmos Mulatos, el show Thriller o el concurso de disfraces.
+- Sugerir alternativas: la música de DJ Ritmos Mulatos, el show Thriller, el concurso de disfraces o un cóctel de autor en la barra de Otocuma.
