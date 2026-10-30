@@ -35,6 +35,8 @@ void audio_set_amp(bool on);
 // Reproducción: PCM s16le en un búfer circular en PSRAM, sin importar el tamaño de cada trozo.
 size_t audio_play_push(const uint8_t *data, size_t len);
 void audio_play_flush(void);
+// Descarta lo pendiente y silencia DAC y amplificador de inmediato (conexión perdida).
+void audio_play_stop(void);
 void audio_beep(float hz, int ms, int count);
 // true mientras suena audio o durante la cola posterior (half-duplex E0).
 bool audio_playing(void);

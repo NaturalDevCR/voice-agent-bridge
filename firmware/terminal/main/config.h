@@ -11,7 +11,7 @@ typedef struct {
     char name[32];    // se muestra en el logo (sin tildes: la fuente es ASCII)
     int volume;       // 0–100
     int gain_db;      // ganancia del micrófono
-    int tx_power;     // dBm, potencia máxima de Wi-Fi (menos = menos ruido en el audio)
+    int tx_power;     // dBm, potencia máxima de Wi-Fi (20 = máximo alcance; menos = menos ruido en el audio)
     int eq_bass;      // dB, estante de graves 250 Hz
     int eq_treble;    // dB, estante de agudos 3 kHz
 } term_config_t;

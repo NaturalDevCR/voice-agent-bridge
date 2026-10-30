@@ -147,6 +147,28 @@ static void handle_text(const char *msg)
     }
 }
 
+// Los trozos de un mensaje pueden tener longitud impar: al reproductor sólo pasan muestras
+// completas y el byte que sobra espera al trozo siguiente. Un byte perdido convertiría todo
+// el audio posterior en ruido blanco a volumen máximo.
+static uint8_t s_pcm_carry;
+static size_t s_pcm_carry_n;
+
+static void push_pcm(const uint8_t *p, size_t n)
+{
+    if (s_pcm_carry_n) {
+        uint8_t s[2] = {s_pcm_carry, p[0]};
+        audio_play_push(s, 2);
+        p++;
+        n--;
+        s_pcm_carry_n = 0;
+    }
+    audio_play_push(p, n & ~(size_t)1);
+    if (n & 1) {
+        s_pcm_carry = p[n - 1];
+        s_pcm_carry_n = 1;
+    }
+}
+
 static void ws_event(void *arg, esp_event_base_t base, int32_t id, void *event_data)
 {
     esp_websocket_event_data_t *d = event_data;
@@ -166,16 +188,17 @@ static void ws_event(void *arg, esp_event_base_t base, int32_t id, void *event_d
         }
         s_ws_connected = false;
         s_mic_on = false;
-        audio_play_flush();
+        audio_play_stop();
         break;
     case WEBSOCKET_EVENT_DATA:
         // Un mensaje grande llega en trozos (payload_offset); el op_code vale para todos.
         if (d->payload_offset == 0 && d->op_code != 0x0) {
             s_rx_op = d->op_code;
             s_text_len = 0;
+            s_pcm_carry_n = 0;  // un byte suelto de un mensaje cortado no pasa al siguiente
         }
-        if (s_rx_op == 0x2) {
-            audio_play_push((const uint8_t *)d->data_ptr, d->data_len);
+        if (s_rx_op == 0x2 && d->data_len > 0) {
+            push_pcm((const uint8_t *)d->data_ptr, d->data_len);
         } else if (s_rx_op == 0x1) {
             size_t n = d->data_len;
             if (s_text_len + n >= sizeof(s_text)) {
@@ -216,6 +239,10 @@ static void ws_start(void)
         .reconnect_timeout_ms = 3000,
         .network_timeout_ms = 10000,
         .ping_interval_sec = 10,
+        .pingpong_timeout_sec = 30,  // por defecto 120 s: un enlace muerto tardaba 2 min en notarse
+        // Sin esto, un cierre limpio (reiniciar o actualizar la app del puente) detiene el
+        // cliente para siempre y el terminal no vuelve hasta reiniciarlo.
+        .enable_close_reconnect = true,
         .task_stack = 6144,
         .task_prio = 8,
     };
@@ -328,6 +355,10 @@ static void wifi_event(void *arg, esp_event_base_t base, int32_t id, void *data)
             ESP_LOGW(TAG, "Wi-Fi perdido (motivo %d), reintentando", e->reason);
             s_wifi_drops++;
             fails = 0;
+            // El WebSocket tarda segundos en enterarse; mientras, el audio almacenado seguiría
+            // sonando con el amplificador encendido y la radio escaneando: estática muy fuerte.
+            s_mic_on = false;
+            audio_play_stop();
         } else if (fails++ % 10 == 0) {  // sin inundar el log mientras reintenta
             ESP_LOGW(TAG, "no conecta a \"%s\" (motivo %d, intento %lu)", g_cfg.ssid, e->reason,
                      (unsigned long)fails);

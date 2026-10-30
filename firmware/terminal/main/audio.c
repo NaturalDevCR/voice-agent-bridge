@@ -46,6 +46,7 @@ static SemaphoreHandle_t s_ring_lock;
 static int64_t s_first_byte_us;  // cuándo llegó audio con el reproductor en reposo
 static volatile int64_t s_last_play_us;
 static volatile bool s_playing;
+static volatile bool s_stop_req;  // audio_play_stop: cortar sin la cola de TAIL_MS
 static volatile uint32_t s_overruns, s_drains;
 static volatile float s_mic_dbfs = -120;
 
@@ -195,7 +196,7 @@ size_t audio_play_push(const uint8_t *data, size_t len)
     size_t room = RING_BYTES - 1 - ring_used();
     if (len > room) {
         s_overruns++;
-        len = room;
+        len = room & ~(size_t)1;  // muestras completas: un byte de menos desalinea todo lo que sigue
     }
     if (ring_used() == 0 && !s_playing) {
         s_first_byte_us = esp_timer_get_time();
@@ -213,6 +214,12 @@ void audio_play_flush(void)
     xSemaphoreTake(s_ring_lock, portMAX_DELAY);
     s_tail = s_head;
     xSemaphoreGive(s_ring_lock);
+}
+
+void audio_play_stop(void)
+{
+    audio_play_flush();
+    s_stop_req = true;
 }
 
 static size_t ring_pop(uint8_t *dst, size_t len)
@@ -339,6 +346,11 @@ static void playback_task(void *arg)
     const size_t frame = sizeof(buf);
     int muted = -1;  // estado aplicado al DAC; -1 obliga a aplicarlo la primera vez
     while (true) {
+        if (s_stop_req) {
+            s_stop_req = false;
+            s_playing = false;
+            s_last_play_us = 0;  // sin cola: el silencio y PW_AMP se aplican en esta misma vuelta
+        }
         size_t used = ring_used();
         if (!s_playing && used > 0) {
             int64_t waited = (esp_timer_get_time() - s_first_byte_us) / 1000;

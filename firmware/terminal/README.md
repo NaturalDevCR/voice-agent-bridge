@@ -42,7 +42,7 @@ Otros comandos (`help` los lista todos):
 | `scan [all]` | APs de la red con canal y señal (`→` = el actual); `all` = todas las redes | — |
 | `name "<nombre>"` | Nombre bajo el logo (sin tildes: la fuente es ASCII) | sí |
 | `eq <graves> <agudos>` | Ecualizador de salida en dB (estantes 250 Hz / 3 kHz) | sí |
-| `txpower [dBm]` | Potencia máxima de Wi-Fi, 2–20; por defecto 14 | sí |
+| `txpower [dBm]` | Potencia máxima de Wi-Fi, 2–20; por defecto 20 (máximo alcance) | sí |
 | `mute auto\|on\|off` | Silencio de DAC y amplificador; `auto` = cuando no suena nada | no |
 | `beep [Hz] [ms]` | Tono generado en el Atom (no usa la red) | — |
 | `playurl <url.wav>` | Reproduce un WAV 16 kHz por HTTP (diagnóstico de la salida) | — |
@@ -79,8 +79,11 @@ base hace audible (confirmado: con `radio off` desaparece). Mitigaciones, juntas
 inaudible con parlante:
 
 1. DAC y amplificador (PW_AMP) apagados mientras no suena nada, como hace xiaozhi.
-2. Potencia de transmisión limitada a 14 dBm (`txpower`); con buena señal sobra.
+2. Potencia de transmisión: 20 dBm por defecto por alcance. Si con buena señal vuelve el ruido
+   mientras habla, bajarla (`txpower 14`).
 3. Micrófono en paquetes de 100 ms: 10 ráfagas de radio por segundo en vez de 50.
+4. Al perder el Wi-Fi o el puente el audio pendiente se descarta y DAC y amplificador se apagan
+   al instante: si no, la radio escaneando para reconectar suena como estática muy fuerte.
 
 ## Particiones
 

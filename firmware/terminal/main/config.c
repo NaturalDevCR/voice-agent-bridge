@@ -12,7 +12,7 @@ static const char *NS = "terminal";
 
 // Valores medidos en el Hito 1 (docs/03): jack con audífonos necesita volumen alto,
 // 30 dB de ganancia deja la voz en −20…−27 dBFS. El jack suena sin graves: EQ de partida.
-term_config_t g_cfg = {.name = "Asistente de voz", .volume = 100, .gain_db = 30, .tx_power = 14, .eq_bass = 6, .eq_treble = -4};
+term_config_t g_cfg = {.name = "Asistente de voz", .volume = 100, .gain_db = 30, .tx_power = 20, .eq_bass = 6, .eq_treble = -4};
 
 static void load_str(nvs_handle_t h, const char *key, char *dst, size_t size)
 {
