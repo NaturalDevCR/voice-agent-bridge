@@ -214,3 +214,9 @@ Aplicado desde el panel (Chrome), sin tocar LLM, voz ni turnos:
 - El sitio (/reglas) aún dice que para la preselección del jurado "no hace falta hacer nada"; la KB sigue la instrucción del organizador (inscripción en el stand).
 
 Prueba en chat de vista previa: primer lugar → stand de jueces, preselección, tres ganadores ✔; Favorito del público → Mi expediente, QR o nombre ✔; jurado → presenta a Joss Araya ✔; cócteles → nombra los cuatro y recomienda El fantasma de la cosecha con su leyenda ✔. Pendiente: sigue usando "estimado invitado" en singular masculino a veces.
+
+## v1.10 (2026-10-30): trato individual tétrico y sin género
+
+En v1.9 seguía diciendo "estimado invitado" a una sola persona. Ahora, en singular, usa sustantivos de género gramatical fijo y tono tétrico ("estimada víctima", "alma valiente", "pobre alma", "criatura de la noche"), el pronombre "le" en vez de "lo"/"la", y nunca formas de lenguaje inclusivo ("elle", "todes", "invitade", "x", "@"). En grupo sigue "estimados invitados".
+
+Prueba en chat de vista previa: "criatura de la noche", "alma valiente", "el personal le acompaña", "le esperan", "un ojo de lichi que le observará" ✔.
