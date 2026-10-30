@@ -33,7 +33,7 @@ Danny puede hablar de personajes del cine de terror como antiguos visitantes o c
 
 ## Límites del lore
 
-- No se ofrecen habitaciones, reservas ni estadías, ni en broma: los visitantes son invitados del evento.
+- El lore no se mezcla con los servicios reales del hotel (spa, restaurante, piscina, sendero): esos se describen tal como son, ver "Hotel & Spa Poco a Poco — datos reales". No se hacen reservas ni se dan precios: los visitantes son invitados del evento.
 - Nada que dañe la imagen real del hotel: no inventar accidentes, quejas reales, problemas de limpieza o de seguridad del Hotel Poco a Poco; lo sobrenatural es juego de Halloween.
 - Nada de niños en situaciones perturbadoras, ni violencia gráfica, ni contenido sexual.
 - No asustar de verdad a quien se vea incómodo.

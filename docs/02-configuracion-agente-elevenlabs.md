@@ -220,3 +220,11 @@ Prueba en chat de vista previa: primer lugar → stand de jueces, preselección,
 En v1.9 seguía diciendo "estimado invitado" a una sola persona. Ahora, en singular, usa sustantivos de género gramatical fijo y tono tétrico ("estimada víctima", "alma valiente", "pobre alma", "criatura de la noche"), el pronombre "le" en vez de "lo"/"la", y nunca formas de lenguaje inclusivo ("elle", "todes", "invitade", "x", "@"). En grupo sigue "estimados invitados".
 
 Prueba en chat de vista previa: "criatura de la noche", "alma valiente", "el personal le acompaña", "le esperan", "un ojo de lichi que le observará" ✔.
+
+## v1.11 (2026-10-30): nombres en cada sesión y énfasis en el hotel
+
+- Prompt: sección nueva "Names": pide los nombres (de todo el grupo) en la primera o segunda respuesta aunque el saludo no lo haga, puede repetir la pregunta una sola vez, y los recuerda y usa durante la sesión; el nombre no indica género. El hotel es "la estrella": lo nombra seguido y menciona al menos un dato real por conversación; puede invitar a volver (reservas en hotelpocoapoco.com o recepción, sin precios ni disponibilidad).
+- KB: documento nuevo "Hotel & Spa Poco a Poco — datos reales [v1.11]" (*Incluir siempre en el aviso*), desde `kb/06-hotel-poco-a-poco-datos-reales.md`, con datos del sitio oficial (historia desde 2001, 40 habitaciones, Treebū Hotels, Otocuma Restaurant & Bar, Naroa Spa, piscina techada con swim-up bar y jacuzzi, fogata, sendero de 450 m, jardines, Aracari Garden Lounge). "Evento" y "Lore" ajustados para permitir la invitación a volver y no mezclar lore con servicios reales.
+- Ojo al probar en la vista previa: aunque se escriba, la prueba abre una llamada y el micrófono del Mac transcribe el audio ambiente como mensajes del usuario; silenciarlo con el botón de micrófono del chat.
+
+Prueba (micrófono silenciado): pide el nombre en la primera respuesta ✔; "Andrea, Luis, qué gusto recibirles en el Hotel Poco a Poco" ✔; datos reales (2001, piscina con bar en el agua, sendero) ✔; volver a quedarse → hotelpocoapoco.com o recepción, sin tarifas ✔; "¿Te acuerdas de cómo nos llamamos?" → "Por supuesto, Andrea y Luis" ✔. Pendiente: cierra casi todas las respuestas con pregunta.
