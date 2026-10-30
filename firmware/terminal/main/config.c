@@ -12,7 +12,7 @@ static const char *NS = "terminal";
 
 // Valores medidos en el Hito 1 (docs/03): jack con audífonos necesita volumen alto,
 // 30 dB de ganancia deja la voz en −20…−27 dBFS. El jack suena sin graves: EQ de partida.
-term_config_t g_cfg = {.name = "Asistente de voz", .volume = 100, .gain_db = 30, .tx_power = 20, .eq_bass = 6, .eq_treble = -4};
+term_config_t g_cfg = {.name = "Asistente de voz", .volume = 100, .gain_db = 30, .tx_power = 0, .eq_bass = 6, .eq_treble = -4};
 
 static void load_str(nvs_handle_t h, const char *key, char *dst, size_t size)
 {
@@ -97,7 +97,11 @@ void config_print(void)
     printf("url    : %s\n", g_cfg.url[0] ? g_cfg.url : "—");
     printf("token  : %s\n", g_cfg.token[0] ? "guardado" : "—");
     printf("nombre : %s\n", g_cfg.name);
-    printf("radio  : %d dBm máx.\n", g_cfg.tx_power);
+    if (g_cfg.tx_power) {
+        printf("radio  : %d dBm máx. (fija)\n", g_cfg.tx_power);
+    } else {
+        printf("radio  : automática (14–20 dBm según la señal)\n");
+    }
     printf("volumen: %d · ganancia mic: %d dB · EQ graves %+d dB, agudos %+d dB\n", g_cfg.volume, g_cfg.gain_db,
            g_cfg.eq_bass, g_cfg.eq_treble);
 }

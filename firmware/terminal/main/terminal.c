@@ -63,6 +63,8 @@ static volatile bool s_ws_connected, s_mic_on, s_wifi_up;
 static volatile uint32_t s_mic_drops, s_wifi_drops, s_bridge_drops;
 static volatile bool s_radio_off, s_scanning;  // radio apagada a propósito / escaneo manual  // radio apagada a propósito (comando radio)
 static volatile int64_t s_online_since_us;  // inicio de la conexión actual al puente
+#define TXP_MAX 20
+static volatile int s_txp_level = -1;  // nivel de potencia automática aplicado; -1 = ninguno
 
 // ---------------------------------------------------------------- JSON mínimo
 // Los mensajes del puente son planos y cortos (json.dumps con espacios tras ':' y ',').
@@ -401,7 +403,8 @@ static void wifi_start(void)
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wc));
     ESP_ERROR_CHECK(esp_wifi_start());
     esp_wifi_set_ps(WIFI_PS_NONE);  // latencia de audio estable
-    esp_wifi_set_max_tx_power((int8_t)(g_cfg.tx_power * 4));  // unidades de 0,25 dBm
+    // En automático se conecta a 20 dBm y txpower_task baja si la señal sobra.
+    esp_wifi_set_max_tx_power((int8_t)((g_cfg.tx_power ? g_cfg.tx_power : TXP_MAX) * 4));  // unidades de 0,25 dBm
     ESP_LOGI(TAG, "conectando a Wi-Fi \"%s\"", g_cfg.ssid);
 }
 
@@ -452,6 +455,53 @@ static void roam_task(void *arg)
             ESP_LOGW(TAG, "roaming: AP actual %d dBm, " MACSTR " tiene %d dBm", cur.rssi, MAC2STR(recs[best].bssid),
                      recs[best].rssi);
             esp_wifi_disconnect();  // el evento de desconexión reconecta al más fuerte
+        }
+    }
+}
+
+// Potencia automática (txpower auto). Más potencia mete más ruido de la radio en el audio,
+// incluso con el amplificador apagado: 14 dBm con buena señal y más sólo cuando se debilita.
+// Subir es inmediato (evita el corte, que es peor); bajar espera a que no haya conversación
+// para que el ruido no cambie mientras habla. Sin Wi-Fi, máxima para reconectar.
+#define TXP_PERIOD_MS 2000
+static const struct {
+    int dbm;
+    int up_below;    // se sube a este nivel con RSSI por debajo de esto
+    int down_above;  // se baja de este nivel con RSSI por encima de esto (histéresis 3 dB)
+} TXP_LEVELS[] = {{14, 0, 0}, {17, -65, -62}, {TXP_MAX, -72, -69}};
+#define TXP_TOP ((int)(sizeof(TXP_LEVELS) / sizeof(TXP_LEVELS[0])) - 1)
+
+static void txpower_task(void *arg)
+{
+    float avg = 0;
+    bool had_wifi = false;
+    while (true) {
+        vTaskDelay(pdMS_TO_TICKS(TXP_PERIOD_MS));
+        if (g_cfg.tx_power || s_radio_off) {
+            continue;
+        }
+        int level = s_txp_level < 0 ? TXP_TOP : s_txp_level;
+        wifi_ap_record_t ap;
+        if (!s_wifi_up || esp_wifi_sta_get_ap_info(&ap) != ESP_OK) {
+            had_wifi = false;
+            level = TXP_TOP;
+        } else {
+            avg = had_wifi ? avg * 0.7f + ap.rssi * 0.3f : ap.rssi;  // suaviza los altibajos del RSSI
+            had_wifi = true;
+            while (level < TXP_TOP && avg < TXP_LEVELS[level + 1].up_below) {
+                level++;
+            }
+            bool talking = s_mic_on || audio_playing();
+            while (!talking && level > 0 && avg > TXP_LEVELS[level].down_above) {
+                level--;
+            }
+        }
+        if (level != s_txp_level) {
+            esp_wifi_set_max_tx_power((int8_t)(TXP_LEVELS[level].dbm * 4));
+            if (s_wifi_up) {
+                ESP_LOGI(TAG, "potencia Wi-Fi %d dBm (RSSI %.0f dBm)", TXP_LEVELS[level].dbm, avg);
+            }
+            s_txp_level = level;
         }
     }
 }
@@ -542,7 +592,11 @@ static int cmd_token(int argc, char **argv)
 static int cmd_txpower(int argc, char **argv)
 {
     int8_t q;
-    if (argc > 1) {
+    if (argc > 1 && strcmp(argv[1], "auto") == 0) {
+        g_cfg.tx_power = 0;
+        s_txp_level = -1;  // txpower_task la vuelve a aplicar
+        saved(false);
+    } else if (argc > 1) {
         int dbm = atoi(argv[1]);
         esp_err_t err = esp_wifi_set_max_tx_power((int8_t)(dbm * 4));  // unidades de 0,25 dBm
         if (err != ESP_OK) {
@@ -553,7 +607,7 @@ static int cmd_txpower(int argc, char **argv)
         saved(false);
     }
     if (esp_wifi_get_max_tx_power(&q) == ESP_OK) {
-        printf("potencia Wi-Fi máxima: %.1f dBm\n", q / 4.0);
+        printf("potencia Wi-Fi máxima: %.1f dBm (%s)\n", q / 4.0, g_cfg.tx_power ? "fija" : "automática");
     }
     return 0;
 }
@@ -645,6 +699,10 @@ static int cmd_status(int argc, char **argv)
     printf("Wi-Fi  : %s", s_wifi_up ? "conectado" : "sin conexión");
     if (assoc) {
         printf(" · AP " MACSTR " · RSSI %d dBm · canal %d", MAC2STR(ap.bssid), ap.rssi, ap.primary);
+    }
+    int8_t q;
+    if (esp_wifi_get_max_tx_power(&q) == ESP_OK) {
+        printf(" · potencia %.0f dBm", q / 4.0);
     }
     printf("\npuente : %s · estado %s · mic %s\n", s_ws_connected ? "conectado" : "sin conexión", s_state,
            s_mic_on ? "ON" : "OFF");
@@ -802,7 +860,7 @@ static void console_start(void)
         {.command = "mute", .help = "mute auto|on|off — silencio del DAC (auto: cuando no suena nada)", .func = cmd_mute},
         {.command = "amp", .help = "amp on|off — amplificador interno PW_AMP (diagnóstico)", .func = cmd_amp},
         {.command = "playurl", .help = "playurl http://… .wav — reproduce un WAV 16 kHz (diagnóstico)", .func = cmd_playurl},
-        {.command = "txpower", .help = "txpower [dBm] — potencia máxima de Wi-Fi, 2–20 (se guarda; menos = menos ruido)", .func = cmd_txpower},
+        {.command = "txpower", .help = "txpower [auto|dBm] — potencia máxima de Wi-Fi: auto (por defecto) o fija 2–20 (se guarda; menos = menos ruido)", .func = cmd_txpower},
         {.command = "radio", .help = "radio off|on — apaga el Wi-Fi hasta 'radio on' (reinicia) o reboot (diagnóstico de ruido)", .func = cmd_radio},
         {.command = "backlight", .help = "backlight <0-100> — brillo de pantalla (diagnóstico de ruido)", .func = cmd_backlight},
         {.command = "reboot", .help = "Reinicia el terminal", .func = cmd_reboot},
@@ -838,6 +896,7 @@ void app_main(void)
     xTaskCreate(button_task, "button", 3072, NULL, 5, NULL);
     xTaskCreate(stats_task, "stats", 4096, NULL, 3, NULL);
     xTaskCreate(roam_task, "roam", 4096, NULL, 3, NULL);
+    xTaskCreate(txpower_task, "txpower", 3072, NULL, 3, NULL);
 
     if (config_ready()) {
         wifi_start();
