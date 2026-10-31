@@ -38,6 +38,9 @@ class SessionConfig:
     playback_tail_ms: int = 300
     input_chunk_ms: int = 100
     error_retry_s: float = 5.0
+    # Si el terminal se desconecta en plena conversación, se espera esto a que vuelva
+    # antes de cerrarla: un corte breve de Wi-Fi no obliga a empezar de cero.
+    terminal_grace_s: float = 20.0
     # Se envía como mensaje del visitante para provocar la despedida + end_call.
     # Una "nota del sistema" activa la protección anti prompt-injection del agente
     # y ElevenLabs corta la llamada (1008) sin despedida.

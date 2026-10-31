@@ -94,6 +94,7 @@ class SessionManager:
         self._end_request: str | None = None
         self._farewell_reason: str | None = None
         self._t_farewell = 0.0
+        self._t_terminal_lost: float | None = None  # terminal caído en plena conversación
         self._aggregator = audio.FrameAggregator(audio.chunk_bytes(cfg.session.input_chunk_ms))
         self._out_q: asyncio.Queue[bytes] | None = None
         self._play_q: asyncio.Queue[bytes | None] | None = None
@@ -266,7 +267,18 @@ class SessionManager:
             loop.create_task(self.start("terminal_button", force=True))
 
     def _on_terminal_connection(self, connected: bool) -> None:
-        if not connected and (self.status in ACTIVE or self.status == Status.CONNECTING):
+        if connected:
+            if self._t_terminal_lost is not None:
+                LOG.info("terminal de vuelta tras %.1fs: la conversación sigue",
+                         time.monotonic() - self._t_terminal_lost)
+                self._t_terminal_lost = None
+                self._idle_base = time.monotonic()  # el silencio del corte no cuenta como inactividad
+        elif self.status in ACTIVE:
+            # Un corte breve de Wi-Fi no termina la conversación: _supervise espera a que vuelva.
+            LOG.warning("terminal caído en plena conversación; esperando %.0fs a que vuelva",
+                        self.cfg.session.terminal_grace_s)
+            self._t_terminal_lost = time.monotonic()
+        elif self.status == Status.CONNECTING:
             self._end_request = "terminal_disconnected"
         self._notify()
 
@@ -297,6 +309,7 @@ class SessionManager:
     async def _session_once(self, source: str) -> str | None:
         """Una conversación completa. Devuelve el motivo del cierre, o None si no se abrió."""
         self._farewell_reason = None
+        self._t_terminal_lost = None
         self._set_status(Status.CONNECTING)
         # Las colas existen ANTES de conectar: el audio del saludo llega en cuanto
         # el servidor acepta la conversación, antes de que connect() retorne.
@@ -372,6 +385,10 @@ class SessionManager:
                 return "agent_end_call" if agent.closed_by_server else "closed"
             if self._end_request in IMMEDIATE_END:
                 return self._end_request
+            if self._t_terminal_lost is not None:
+                if now - self._t_terminal_lost >= self.cfg.session.terminal_grace_s:
+                    return "terminal_disconnected"
+                continue  # sin terminal no hay despedida audible ni inactividad que medir
             if self._farewell_reason is None:
                 trigger = None
                 if self._end_request:

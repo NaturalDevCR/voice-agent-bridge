@@ -19,6 +19,7 @@ session:
   max_session_s: 240        # tope por grupo (el agente tiene 300 s como red de seguridad)
   idle_timeout_s: 20        # sin que los usuarios hablen → el agente se despide
   farewell_timeout_s: 12    # espera a que el agente se despida y cuelgue
+  terminal_grace_s: 20      # si el terminal se cae en plena conversación, espera a que vuelva
   cooldown_s: 30            # pausa antes de aceptar un nuevo "visitante detectado"
   playback_tail_ms: 300     # micrófono en silencio tras terminar de hablar (anti-eco)
   input_chunk_ms: 100

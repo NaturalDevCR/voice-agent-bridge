@@ -108,6 +108,10 @@ class FakeTerminal(Terminal):
         self._connected = False
         self.on_connection(False)
 
+    def reconnect(self) -> None:
+        self._connected = True
+        self.on_connection(True)
+
     async def play(self, pcm: bytes) -> None:
         self.played.extend(pcm)
 

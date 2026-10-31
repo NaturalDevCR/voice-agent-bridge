@@ -1,6 +1,6 @@
 [project]
 name = "voice-agent-bridge"
-version = "0.5.0"
+version = "0.5.1"
 description = "Puente entre terminales de voz (AtomS3R / audio local), ElevenLabs Agents y Home Assistant"
 requires-python = ">=3.11"
 dependencies = [

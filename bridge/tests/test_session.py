@@ -19,6 +19,7 @@ def make_cfg(tmp_path, ws_url: str, **session) -> Config:
     s.idle_timeout_s, s.max_session_s = 1.5, 20
     s.farewell_timeout_s, s.cooldown_s, s.error_retry_s = 2, 0.4, 0.2
     s.playback_tail_ms, s.input_chunk_ms = 100, 40
+    s.terminal_grace_s = 0.5
     for k, v in session.items():
         setattr(s, k, v)
     return cfg
@@ -167,6 +168,33 @@ def test_restart_cuts_without_farewell_and_starts_new_conversation(tmp_path):
         ended = [d["reason"] for e, d in events if e == "session_ended"]
         assert ended[0] == "restart"
         assert [d["source"] for e, d in events if e == "session_started"] == ["test", "restart"]
+    run(go())
+
+
+def test_brief_terminal_drop_keeps_the_conversation(tmp_path):
+    async def go():
+        agent = FakeAgent(greeting_ms=100)
+        server, url = await start_fake_agent(agent)
+        cfg = make_cfg(tmp_path, url, terminal_grace_s=2, idle_timeout_s=1)
+        term = FakeTerminal()
+        mgr = SessionManager(cfg, term, StateStore(cfg.state_file))
+        try:
+            assert await mgr.start("test")
+            await wait_for(lambda: mgr.status == Status.LISTENING)
+            term.disconnect()
+            # más que la inactividad, menos que la gracia: ni despedida ni cierre
+            await asyncio.sleep(1.3)
+            assert mgr.status == Status.LISTENING
+            term.reconnect()
+            await asyncio.sleep(0.5)
+            assert mgr.status == Status.LISTENING, "el silencio del corte no cuenta como inactividad"
+            assert agent.connections == 1 and agent.user_messages == []
+            # un corte más largo que la gracia sí cierra la conversación
+            term.disconnect()
+            await wait_for(lambda: mgr.status == Status.IDLE)
+            assert mgr.last_end_reason == "terminal_disconnected"
+        finally:
+            server.close()
     run(go())
 
 

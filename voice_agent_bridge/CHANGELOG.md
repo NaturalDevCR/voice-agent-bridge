@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.1
+
+- Si el terminal pierde la conexión en plena conversación, el puente espera hasta 20 s a
+  que vuelva antes de cerrarla: un corte breve de Wi-Fi ya no reinicia la conversación
+  (el silencio del corte tampoco cuenta como inactividad).
+
 ## 0.5.0
 
 - Nuevo botón **Siguiente grupo** (`button.<nombre>_siguiente_grupo`, topic `cmd/restart`):
