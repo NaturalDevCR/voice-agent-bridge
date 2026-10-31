@@ -69,7 +69,8 @@ def test_discovery_payloads():
     ids = {p["default_entity_id"] for _, p in msgs}
     for expected in ("sensor.danny_estado", "binary_sensor.danny_hablando",
                      "button.danny_iniciar_conversacion", "button.danny_visitante_detectado",
-                     "switch.danny_activo", "event.danny_sesion", "number.danny_cooldown_s"):
+                     "button.danny_siguiente_grupo", "switch.danny_activo", "event.danny_sesion",
+                     "number.danny_cooldown_s"):
         assert expected in ids
 
 
@@ -84,15 +85,21 @@ def test_mqtt_commands_drive_session_manager(tmp_path):
             calls.append((source, force))
             return True
 
+        async def fake_restart(source):
+            calls.append(("restart", source))
+            return True
+
         mgr.start = fake_start
+        mgr.restart = fake_restart
         ha = HomeAssistantMqtt(cfg.mqtt, mgr)
         await ha.handle_command("start", "PRESS")
         await ha.handle_command("trigger", "PRESS")
+        await ha.handle_command("restart", "PRESS")
         await ha.handle_command("enabled", "OFF")
         assert mgr.enabled is False
         await ha.handle_command("set/cooldown_s", "45")
         assert mgr.setting("cooldown_s") == 45
-        assert calls == [("home_assistant", True), ("presence", False)]
+        assert calls == [("home_assistant", True), ("presence", False), ("restart", "home_assistant")]
     asyncio.run(go())
 
 

@@ -72,6 +72,7 @@ Las entidades aparecen solas en un dispositivo con el nombre del agente (`name`)
 | `button.danny_iniciar_conversacion` | inicio manual (ignora el enfriamiento) |
 | `button.danny_visitante_detectado` | para automatizaciones de presencia (respeta el enfriamiento) |
 | `button.danny_terminar_conversacion` | pide la despedida y cierra |
+| `button.danny_siguiente_grupo` | corta sin despedida y empieza otra conversación con saludo nuevo |
 | `switch.danny_activo` | interruptor maestro (apagado = nunca abre sesiones) |
 | `number.danny_max_session_s` / `_idle_timeout_s` / `_cooldown_s` | ajustes en vivo (persisten) |
 | `sensor.danny_minutos_hoy` / `_costo_hoy` / `_sesiones_hoy` | control de costos |

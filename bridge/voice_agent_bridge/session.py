@@ -10,6 +10,8 @@ Reglas (docs/01 §3.2):
 - Fin por inactividad o por duración máxima: se pide al agente que se despida
   (nota del sistema → despedida + end_call); si no cierra, cierra el puente.
 - Enfriamiento antes de aceptar un nuevo inicio automático.
+- Reinicio ("siguiente grupo"): corta en seco, sin despedida, y abre otra conversación
+  con un saludo nuevo, sin enfriamiento.
 """
 
 from __future__ import annotations
@@ -49,6 +51,8 @@ class Status(str, Enum):
 
 
 ACTIVE = {Status.LISTENING, Status.SPEAKING, Status.FAREWELL}
+# Motivos de cierre que no piden despedida: la sesión se corta en el acto.
+IMMEDIATE_END = ("terminal_disconnected", "shutdown", "restart")
 
 
 def load_greetings(path: str) -> list[str]:
@@ -184,6 +188,16 @@ class SessionManager:
             return True
         return False
 
+    async def restart(self, source: str = "manual") -> bool:
+        """Siguiente grupo: cortar la conversación en curso sin despedida y abrir otra."""
+        if self.status == Status.CONNECTING:
+            return True  # ya está empezando una conversación nueva
+        if self.status not in ACTIVE:
+            return await self.start(source, force=True)
+        self._end_request = "restart"
+        self._cut_audio()
+        return True
+
     async def shutdown(self) -> None:
         if self._session_task and not self._session_task.done():
             self._end_request = "shutdown"
@@ -197,6 +211,8 @@ class SessionManager:
     # ------------------------------------------------------------ eventos del agente
 
     def on_agent_audio(self, pcm: bytes) -> None:
+        if self._end_request == "restart":
+            return  # la conversación se está cortando: no reproducir lo que siga llegando
         now = time.monotonic()
         self._play_end = max(self._play_end, now) + audio.duration_s(pcm)
         if self._reply_turn:
@@ -219,6 +235,10 @@ class SessionManager:
 
     def on_interruption(self) -> None:
         LOG.info("interrupción")
+        self._cut_audio()
+
+    def _cut_audio(self) -> None:
+        """Descartar el audio pendiente del agente y vaciar el búfer del terminal."""
         self._play_end = time.monotonic()
         if self._play_q is not None:
             while not self._play_q.empty():
@@ -262,6 +282,20 @@ class SessionManager:
         return greeting
 
     async def _run_session(self, source: str) -> None:
+        while True:
+            reason = await self._session_once(source)
+            if reason is None:
+                return  # no llegó a abrirse: el estado ya quedó en error/idle
+            if reason == "restart" and self.enabled and self.terminal.connected:
+                # siguiente grupo: otra conversación ya, sin enfriamiento
+                self._end_request = None
+                source = "restart"
+                continue
+            await self._cooldown(reason)
+            return
+
+    async def _session_once(self, source: str) -> str | None:
+        """Una conversación completa. Devuelve el motivo del cierre, o None si no se abrió."""
         self._farewell_reason = None
         self._set_status(Status.CONNECTING)
         # Las colas existen ANTES de conectar: el audio del saludo llega en cuanto
@@ -279,13 +313,13 @@ class SessionManager:
             player.cancel()
             self._out_q = self._play_q = None
             await self._fail(str(exc))
-            return
+            return None
         if self._end_request:
             player.cancel()
             self._out_q = self._play_q = None
             await agent.close()
             self._finish_without_session()
-            return
+            return None
 
         self._agent = agent
         self._t_start = self._last_user = time.monotonic()
@@ -325,7 +359,7 @@ class SessionManager:
         self._emit("session_ended", {"reason": reason, "seconds": round(duration, 1),
                                      "cost_usd": round(cost, 4),
                                      "conversation_id": self.conversation_id})
-        await self._cooldown(reason)
+        return reason
 
     async def _supervise(self, agent: AgentSession) -> str:
         while True:
@@ -336,7 +370,7 @@ class SessionManager:
                 if self._farewell_reason:
                     return self._farewell_reason
                 return "agent_end_call" if agent.closed_by_server else "closed"
-            if self._end_request in ("terminal_disconnected", "shutdown"):
+            if self._end_request in IMMEDIATE_END:
                 return self._end_request
             if self._farewell_reason is None:
                 trigger = None

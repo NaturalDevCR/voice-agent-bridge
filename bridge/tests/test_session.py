@@ -137,6 +137,39 @@ def test_start_rules_disabled_cooldown_and_terminal(tmp_path):
     run(go())
 
 
+def test_restart_cuts_without_farewell_and_starts_new_conversation(tmp_path):
+    async def go():
+        agent = FakeAgent(greeting_ms=3000)
+        server, url = await start_fake_agent(agent)
+        cfg = make_cfg(tmp_path, url, cooldown_s=5)
+        term = FakeTerminal()
+        mgr = SessionManager(cfg, term, StateStore(cfg.state_file))
+        events, statuses = [], []
+        mgr.event_listeners.append(lambda e, d: events.append((e, d)))
+        mgr.listeners.append(lambda snap: statuses.append(snap["status"]))
+        try:
+            assert await mgr.restart("test"), "sin conversación, reiniciar = iniciar"
+            await wait_for(lambda: mgr.status == Status.SPEAKING)
+            flushes = term.flushes
+            t0 = time.monotonic()
+            assert await mgr.restart("test")
+            # nueva conversación, sin despedida ni enfriamiento, aunque el saludo seguía sonando
+            await wait_for(lambda: agent.connections == 2)
+            assert time.monotonic() - t0 < 1.5, "no espera a que termine el saludo"
+            await wait_for(lambda: mgr.status == Status.SPEAKING)
+            assert term.flushes > flushes, "el audio pendiente se descarta"
+            assert agent.user_messages == [], "no pide despedida"
+            assert "farewell" not in statuses and "cooldown" not in statuses
+            await mgr.end("test")
+            await wait_for(lambda: mgr.status == Status.COOLDOWN)
+        finally:
+            server.close()
+        ended = [d["reason"] for e, d in events if e == "session_ended"]
+        assert ended[0] == "restart"
+        assert [d["source"] for e, d in events if e == "session_started"] == ["test", "restart"]
+    run(go())
+
+
 def test_connection_error_goes_to_error_then_idle(tmp_path):
     async def go():
         cfg = make_cfg(tmp_path, "ws://127.0.0.1:1/x")

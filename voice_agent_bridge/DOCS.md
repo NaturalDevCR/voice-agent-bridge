@@ -37,7 +37,9 @@ En *Ajustes → Dispositivos → MQTT → Asistente de voz*:
 - `binary_sensor.asistente_de_voz_hablando`, `binary_sensor.asistente_de_voz_escuchando`, `binary_sensor.asistente_de_voz_terminal`
 - `button.asistente_de_voz_iniciar_conversacion` (manual) y `button.asistente_de_voz_visitante_detectado`
   (para sensores de presencia: respeta la pausa entre grupos)
-- `button.asistente_de_voz_terminar_conversacion`
+- `button.asistente_de_voz_terminar_conversacion` (pide la despedida y cierra)
+- `button.asistente_de_voz_siguiente_grupo`: corta la conversación en el acto, sin despedida,
+  y empieza otra con un saludo nuevo (sin pausa entre grupos)
 - `switch.asistente_de_voz_activo`: interruptor maestro
 - tiempos ajustables, minutos y costo estimado del día, `event.asistente_de_voz_sesion`
 

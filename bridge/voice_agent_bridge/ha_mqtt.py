@@ -2,7 +2,8 @@
 
 Un dispositivo por agente. Con nombre "Danny" (prefijo "danny"):
   sensor.danny_estado, binary_sensor.danny_hablando / _escuchando / _terminal,
-  button.danny_iniciar_conversacion / _visitante_detectado / _terminar_conversacion,
+  button.danny_iniciar_conversacion / _visitante_detectado / _terminar_conversacion /
+  _siguiente_grupo,
   switch.danny_activo, number.danny_max_session_s / _idle_timeout_s / _cooldown_s,
   sensores de estadísticas y event.danny_sesion (session_started, session_ended, error).
 
@@ -13,6 +14,7 @@ Topics (base_topic = "voice_agent/<prefijo>"):
   <base>/cmd/start             iniciar ya (manual; ignora el enfriamiento)
   <base>/cmd/trigger           visitante detectado (automatizaciones; respeta el enfriamiento)
   <base>/cmd/end               pedir despedida y cerrar
+  <base>/cmd/restart           siguiente grupo: cortar sin despedida y empezar otra conversación
   <base>/cmd/enabled           ON | OFF
   <base>/cmd/set/<ajuste>      número
 """
@@ -71,6 +73,8 @@ def discovery_messages(cfg: MqttConfig) -> list[tuple[str, dict]]:
             "command_topic": f"{b}/cmd/trigger", "icon": "mdi:motion-sensor"}),
         ent("button", "terminar_conversacion", {"name": "Terminar conversación",
             "command_topic": f"{b}/cmd/end", "icon": "mdi:stop"}),
+        ent("button", "siguiente_grupo", {"name": "Siguiente grupo",
+            "command_topic": f"{b}/cmd/restart", "icon": "mdi:restart"}),
         ent("switch", "activo", {"name": "Activo", "state_topic": state,
             "value_template": "{{ 'ON' if value_json.enabled else 'OFF' }}",
             "command_topic": f"{b}/cmd/enabled", "icon": "mdi:power"}),
@@ -205,6 +209,8 @@ class HomeAssistantMqtt:
             await m.start("presence")
         elif command == "end":
             await m.end("home_assistant")
+        elif command == "restart":
+            await m.restart("home_assistant")
         elif command == "enabled":
             await m.set_enabled(payload.strip().upper() in ("ON", "1", "TRUE"))
         elif command.startswith("set/"):

@@ -1,5 +1,5 @@
 name: Voice Agent Bridge
-version: "0.4.1"
+version: "0.5.0"
 slug: voice_agent_bridge
 description: Terminal de voz (AtomS3R u otro) conectado a un agente de ElevenLabs y a Home Assistant
 url: https://github.com/NaturalDevCR/voice-agent-bridge

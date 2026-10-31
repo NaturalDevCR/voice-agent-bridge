@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0
+
+- Nuevo botón **Siguiente grupo** (`button.<nombre>_siguiente_grupo`, topic `cmd/restart`):
+  corta la conversación en el acto, sin despedida, descarta el audio pendiente y empieza
+  otra con un saludo nuevo, sin pausa entre grupos. Sin conversación activa, inicia una.
+
 ## 0.4.1
 
 - Saludos de Danny actualizados: el hotel es el Hotel & Spa Poco a Poco (ya no "el Overlook")
